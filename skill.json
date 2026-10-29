@@ -1,0 +1,15 @@
+{
+  "name": "openclaw-genpark-negotiator",
+  "version": "1.0.0",
+  "description": "OpenClaw GenPark multi-issue bilateral game-theoretic agent negotiator with Boulware concession curves and Pareto counter-offer synthesis.",
+  "tools": [
+    {
+      "name": "compute_concession_offer",
+      "description": "Calculate time-dependent concession price threshold for current round."
+    },
+    {
+      "name": "evaluate_multi_issue_proposal",
+      "description": "Evaluate multi-attribute counterpart offer and generate counter-proposal."
+    }
+  ]
+}
