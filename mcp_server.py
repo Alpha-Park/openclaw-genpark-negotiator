@@ -16,6 +16,25 @@ def run_tool(name, args):
     else:
         raise ValueError(f"Unknown tool: {name}")
 
+from typing import Any, Dict, List, Optional
+
+try:
+    from mcp.server.fastmcp import FastMCP
+except ImportError as exc:
+    raise SystemExit("MCP requires the mcp package. Run: python -m pip install -r requirements.txt") from exc
+
+mcp = FastMCP('openclaw-genpark-negotiator')
+
+@mcp.tool()
+def compute_concession_offer(current_round: int = 1) -> str:
+    """Compute the next concession offer."""
+    return json.dumps(run_tool('compute_concession_offer', {'current_round': current_round}))
+
+@mcp.tool()
+def evaluate_multi_issue_proposal(current_round: int = 1, counterpart_offer: Optional[Dict[str, float]] = None, issue_weights: Optional[Dict[str, float]] = None) -> str:
+    """Evaluate a supplied multi-issue negotiation proposal."""
+    return json.dumps(run_tool('evaluate_multi_issue_proposal', {'current_round': current_round, 'counterpart_offer': counterpart_offer if counterpart_offer is not None else {}, 'issue_weights': issue_weights}))
+
 def main():
     if "--test" in sys.argv:
         print("[TEST] Running OpenClaw Negotiator Self-Test...")
@@ -27,15 +46,7 @@ def main():
         print("[TEST] All tests passed successfully!")
         return
 
-    for line in sys.stdin:
-        if not line.strip(): continue
-        try:
-            req = json.loads(line)
-            res = run_tool(req.get("name"), req.get("arguments", {}))
-            print(json.dumps({"jsonrpc": "2.0", "id": req.get("id"), "result": res}))
-        except Exception as e:
-            print(json.dumps({"jsonrpc": "2.0", "id": None, "error": {"code": -32603, "message": str(e)}}))
-        sys.stdout.flush()
+    mcp.run(transport="stdio")
 
 if __name__ == "__main__":
     main()
